@@ -361,6 +361,20 @@ public:
         initialize_quantum_state(this->data_c(), _dim);
     }
 
+    void pop_qubit() {
+        this->_qubit_count -= 1;
+        this->_dim = (1ULL << this->_qubit_count);
+        this->_state_vector = reinterpret_cast<CPPCTYPE*>(
+            reallocate_quantum_state(this->_dim, this->_state_vector));
+    }
+
+    void push_qubit() {
+        this->_qubit_count += 1;
+        this->_dim = (1ULL << this->_qubit_count);
+        this->_state_vector = reinterpret_cast<CPPCTYPE*>(
+            reallocate_quantum_state(this->_dim, this->_state_vector));
+        reinitialize_quantum_state(this->data_c(), _dim / 2ULL, _dim);
+    }
     /**
      * \~japanese-en 量子状態をノルム0の状態にする
      */

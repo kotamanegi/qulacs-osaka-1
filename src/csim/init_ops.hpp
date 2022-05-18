@@ -16,6 +16,8 @@
  * @param[in] dim dimension
  */
 DllExport void initialize_quantum_state(CTYPE* state, ITYPE dim);
+DllExport void reinitialize_quantum_state(
+    CTYPE* state, ITYPE old_dim, ITYPE new_dim);
 
 DllExport void initialize_Haar_random_state(CTYPE* state, ITYPE dim);
 

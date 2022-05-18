@@ -26,6 +26,19 @@ CTYPE* allocate_quantum_state(ITYPE dim) {
     return state;
 }
 
+// memory allocation
+CTYPE* reallocate_quantum_state(ITYPE dim, CTYPE* old_pointer) {
+    CTYPE* state = (CTYPE*)realloc(old_pointer, (size_t)(sizeof(CTYPE) * dim));
+    // CTYPE* state = (CTYPE*)_aligned_malloc((size_t)(sizeof(CTYPE)*dim), 32);
+
+    if (!state) {
+        fprintf(stderr, "Out of memory\n");
+        fflush(stderr);
+        exit(1);
+    }
+    return state;
+}
+
 void release_quantum_state(CTYPE* state) {
     free(state);
     //_aligned_free(state);

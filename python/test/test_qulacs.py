@@ -1,6 +1,7 @@
 
 # set library dir
 import qulacs
+from qulacs.AdaptiveQuantumState import AdaptiveQuantumState
 import unittest
 import numpy as np
 import warnings
@@ -63,6 +64,37 @@ class TestQuantumCircuit(unittest.TestCase):
         vector_ans[3] = np.sqrt(0.5)
         self.assertTrue(((vector - vector_ans) < 1e-10).all(),
                         msg="check make bell state")
+
+
+class TestAdaptiveQuantumState(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_can_instance(self):
+        state = AdaptiveQuantumState()
+
+    def test_add20qubit(self):
+        state = AdaptiveQuantumState()
+        for i in range(20):
+            state.add_qubit(i)
+
+    def test_duplicatequbit(self):
+        state = AdaptiveQuantumState()
+        duplicated_qubit = 1
+        state.add_qubit(duplicated_qubit)
+        with pytest.raises(RuntimeError) as e:
+            state.add_qubit(duplicated_qubit)
+
+
+    def test_delete20qubit(self):
+        state = AdaptiveQuantumState()
+        for i in range(20):
+            state.add_qubit(i+20)
+        for i in range(20):
+            state.delete_qubit(i + 20)
 
 
 class TestObservable(unittest.TestCase):

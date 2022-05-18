@@ -17,6 +17,7 @@
  */
 DllExport CTYPE* allocate_quantum_state(ITYPE dim);
 
+DllExport CTYPE* reallocate_quantum_state(ITYPE dim, CTYPE* old_pointer);
 /**
  * release allocated quantum state
  *
