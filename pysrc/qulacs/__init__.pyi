@@ -652,6 +652,14 @@ class QuantumGateBase():
         """
         Check this gate is parametric gate
         """
+    def set_control_index_list(self, control_index_list: typing.List[int]) -> None: 
+        """
+        set control index list
+        """
+    def set_target_index_list(self, target_index_list: typing.List[int]) -> None: 
+        """
+        set target index list
+        """
     def to_string(self) -> str: 
         """
         Get string representation
@@ -774,6 +782,14 @@ class QuantumState(QuantumStateBase):
     def normalize(self, squared_norm: float) -> None: 
         """
         Normalize quantum state
+        """
+    def pop_qubit(self) -> None: 
+        """
+        delete one more qubit from back
+        """
+    def push_qubit(self) -> None: 
+        """
+        add one more qubit to back
         """
     @typing.overload
     def sampling(self, count: int) -> typing.List[int]: 

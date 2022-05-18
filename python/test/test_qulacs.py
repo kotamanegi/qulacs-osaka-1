@@ -1,11 +1,15 @@
 
 # set library dir
-import qulacs
-from qulacs.AdaptiveQuantumState import AdaptiveQuantumState
-import unittest
-import numpy as np
-import warnings
 import sys
+import unittest
+import warnings
+
+import numpy as np
+import pytest
+import qulacs
+from qulacs.AdaptiveQuantumCircuit import AdaptiveQuantumCircuit
+from qulacs.AdaptiveQuantumState import AdaptiveQuantumState
+
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])
 sys.argv = sys.argv[:1]
@@ -74,28 +78,70 @@ class TestAdaptiveQuantumState(unittest.TestCase):
         pass
 
     def test_can_instance(self):
-        state = AdaptiveQuantumState()
+        AdaptiveQuantumState()
 
     def test_add20qubit(self):
         state = AdaptiveQuantumState()
         for i in range(20):
             state.add_qubit(i)
+        assert state.internal_state.get_qubit_count() == 20
 
     def test_duplicatequbit(self):
         state = AdaptiveQuantumState()
         duplicated_qubit = 1
         state.add_qubit(duplicated_qubit)
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(RuntimeError):
             state.add_qubit(duplicated_qubit)
-
 
     def test_delete20qubit(self):
         state = AdaptiveQuantumState()
         for i in range(20):
             state.add_qubit(i+20)
+        assert state.internal_state.get_qubit_count() == 20
+        assert state.internal_state.get_qubit_count() == 20
+        assert state.internal_state.get_qubit_count() == 20
         for i in range(20):
             state.delete_qubit(i + 20)
+    
+    def test_run_gate(self):
+        gate = qulacs.gate.X(100)
+        state = AdaptiveQuantumState()
+        state.add_qubit(101)
+        state.add_qubit(100)
+        state.update_quantum_state_from_gate(gate)
 
+class TestAdaptiveQuantumCircuit(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_can_instance(self):
+        AdaptiveQuantumCircuit()
+
+    def test_add_gates(self):
+        circuit = AdaptiveQuantumCircuit()
+        for i in range(100):
+            circuit.add_gate(qulacs.gate.H(i))
+
+    def test_add_qubit(self):
+        circuit = AdaptiveQuantumCircuit()
+        for i in range(100):
+            circuit.add_qubit(i)
+            circuit.add_gate(qulacs.gate.H(i))
+            circuit.remove_qubit(i)
+        circuit.get_quantumstate()
+    
+    def test_CNOT_run(self):
+        circuit = AdaptiveQuantumCircuit()
+        circuit.add_qubit(0)
+        circuit.add_gate(qulacs.gate.X(0))
+        for i in range(1):
+            circuit.add_qubit(i+1)
+            circuit.add_gate(qulacs.gate.CNOT(i,i+1))
+            circuit.remove_qubit(i)
+        print(circuit.get_quantumstate())
 
 class TestObservable(unittest.TestCase):
     def setUp(self):
@@ -105,8 +151,8 @@ class TestObservable(unittest.TestCase):
         pass
 
     def test_get_matrix(self):
-        from qulacs import Observable
         import numpy as np
+        from qulacs import Observable
         n_qubits = 3
         obs = Observable(n_qubits)
         obs.add_operator(.5, "Z 2")
@@ -190,11 +236,19 @@ class TestPointerHandling(unittest.TestCase):
 
     def test_circuit_add_gate(self):
         from qulacs import QuantumCircuit, QuantumState
-        from qulacs.gate import Identity, X, Y, Z, H, S, Sdag, T, Tdag, sqrtX, sqrtXdag, sqrtY, sqrtYdag
-        from qulacs.gate import P0, P1, U1, U2, U3, RX, RY, RZ, CNOT, CZ, SWAP, TOFFOLI, FREDKIN, Pauli, PauliRotation
-        from qulacs.gate import DenseMatrix, SparseMatrix, DiagonalMatrix, RandomUnitary, ReversibleBoolean, StateReflection
-        from qulacs.gate import BitFlipNoise, DephasingNoise, IndependentXZNoise, DepolarizingNoise, TwoQubitDepolarizingNoise, AmplitudeDampingNoise, Measurement
-        from qulacs.gate import merge, add, to_matrix_gate, Probabilistic, CPTP, Instrument, Adaptive
+        from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
+                                 SWAP, TOFFOLI, U1, U2, U3, Adaptive,
+                                 AmplitudeDampingNoise, BitFlipNoise,
+                                 DenseMatrix, DephasingNoise,
+                                 DepolarizingNoise, DiagonalMatrix, H,
+                                 Identity, IndependentXZNoise, Instrument,
+                                 Measurement, Pauli, PauliRotation,
+                                 Probabilistic, RandomUnitary,
+                                 ReversibleBoolean, S, Sdag, SparseMatrix,
+                                 StateReflection, T, Tdag,
+                                 TwoQubitDepolarizingNoise, X, Y, Z, add,
+                                 merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
+                                 to_matrix_gate)
         from scipy.sparse import lil_matrix
         qc = QuantumCircuit(3)
         qs = QuantumState(3)
@@ -248,12 +302,20 @@ class TestPointerHandling(unittest.TestCase):
 
     def test_circuit_add_parametric_gate(self):
         from qulacs import ParametricQuantumCircuit, QuantumState
-        from qulacs.gate import Identity, X, Y, Z, H, S, Sdag, T, Tdag, sqrtX, sqrtXdag, sqrtY, sqrtYdag
-        from qulacs.gate import P0, P1, U1, U2, U3, RX, RY, RZ, CNOT, CZ, SWAP, TOFFOLI, FREDKIN, Pauli, PauliRotation
-        from qulacs.gate import DenseMatrix, SparseMatrix, DiagonalMatrix, RandomUnitary, ReversibleBoolean, StateReflection
-        from qulacs.gate import BitFlipNoise, DephasingNoise, IndependentXZNoise, DepolarizingNoise, TwoQubitDepolarizingNoise, AmplitudeDampingNoise, Measurement
-        from qulacs.gate import merge, add, to_matrix_gate, Probabilistic, CPTP, Instrument, Adaptive
-        from qulacs.gate import ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation
+        from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
+                                 SWAP, TOFFOLI, U1, U2, U3, Adaptive,
+                                 AmplitudeDampingNoise, BitFlipNoise,
+                                 DenseMatrix, DephasingNoise,
+                                 DepolarizingNoise, DiagonalMatrix, H,
+                                 Identity, IndependentXZNoise, Instrument,
+                                 Measurement, ParametricPauliRotation,
+                                 ParametricRX, ParametricRY, ParametricRZ,
+                                 Pauli, PauliRotation, Probabilistic,
+                                 RandomUnitary, ReversibleBoolean, S, Sdag,
+                                 SparseMatrix, StateReflection, T, Tdag,
+                                 TwoQubitDepolarizingNoise, X, Y, Z, add,
+                                 merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
+                                 to_matrix_gate)
         from scipy.sparse import lil_matrix
         qc = ParametricQuantumCircuit(3)
         qs = QuantumState(3)
@@ -321,7 +383,8 @@ class TestPointerHandling(unittest.TestCase):
 
     def test_add_same_gate_multiple_time(self):
         from qulacs import QuantumCircuit, QuantumState
-        from qulacs.gate import X, DepolarizingNoise, DephasingNoise, Probabilistic, RX
+        from qulacs.gate import (RX, DephasingNoise, DepolarizingNoise,
+                                 Probabilistic, X)
         state = QuantumState(1)
         circuit = QuantumCircuit(1)
         noise = DepolarizingNoise(0, 0)
@@ -496,8 +559,8 @@ class TestUtils(unittest.TestCase):
         pass
 
     def test_convert_openfermion_op(self):
-        from qulacs.utils import convert_openfermion_op
         from openfermion import QubitOperator
+        from qulacs.utils import convert_openfermion_op
         openfermion_op = QubitOperator()
         openfermion_op += 1. * QubitOperator("X0")
         openfermion_op += 2. * QubitOperator("Z0 Y1")

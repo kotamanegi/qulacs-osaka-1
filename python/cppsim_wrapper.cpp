@@ -44,8 +44,8 @@ PYBIND11_MODULE(qulacs_core, m) {
                  std::complex<double>>(),
             py::arg("x_bits"), py::arg("z_bits"), py::arg("coef"))
         //.def(py::init<std::vector<unsigned int>&, std::string,
-        //std::complex<double>>()) .def(py::init<std::vector<unsigned int>&,
-        //std::vector<unsigned int>&, std::complex<double>>())
+        // std::complex<double>>()) .def(py::init<std::vector<unsigned int>&,
+        // std::vector<unsigned int>&, std::complex<double>>())
         //.def(py::init<std::vector<unsigned int>&, std::complex<double>>())
         .def("get_index_list", &PauliOperator::get_index_list,
             "Get list of target qubit indices")
@@ -117,7 +117,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("work_state"), py::arg("state_to_be_multiplied"),
             py::arg("dst_state"))
         //.def("get_term", &GeneralQuantumOperator::get_term,
-        //pybind11::return_value_policy::take_ownership)
+        // pybind11::return_value_policy::take_ownership)
         .def(
             "get_term",
             [](const GeneralQuantumOperator &quantum_operator,
@@ -229,7 +229,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_term_count", &HermitianQuantumOperator::get_term_count,
             "Get count of Pauli terms")
         //.def("get_term", &HermitianQuantumOperator::get_term,
-        //pybind11::return_value_policy::take_ownership)
+        // pybind11::return_value_policy::take_ownership)
         .def(
             "get_term",
             [](const HermitianQuantumOperator &quantum_operator,
@@ -312,7 +312,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def(
             "set_zero_state", &QuantumState::set_zero_state, "Set state to |0>")
-        .def("pop_qubit", &QuantumState::push_qubit,
+        .def("pop_qubit", &QuantumState::pop_qubit,
             "delete one more qubit from back")
         .def("push_qubit", &QuantumState::push_qubit,
             "add one more qubit to back")
@@ -340,7 +340,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             pybind11::return_value_policy::automatic_reference,
             "Allocate buffer with the same size")
         //.def("copy", &QuantumState::copy,
-        //pybind11::return_value_policy::automatic_reference)
+        // pybind11::return_value_policy::automatic_reference)
         .def("copy", &QuantumState::copy, "Create copied instance")
         .def("load",
             (void(QuantumState::*)(const QuantumStateBase *)) &
@@ -519,7 +519,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             pybind11::return_value_policy::automatic_reference,
             "Allocate buffer with the same size")
         //.def("copy", &QuantumStateGpu::copy,
-        //pybind11::return_value_policy::automatic_reference)
+        // pybind11::return_value_policy::automatic_reference)
         .def("copy", &QuantumStateGpu::copy, "Create copied insntace")
         .def("load",
             (void(QuantumStateGpu::*)(const QuantumStateBase *)) &
@@ -674,7 +674,11 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("is_parametric", &QuantumGateBase::is_parametric,
             "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal,
-            "Check the gate matrix is diagonal");
+            "Check the gate matrix is diagonal")
+        .def("set_target_index_list", &QuantumGateBase::set_target_index_list,
+            "set target index list", py::arg("target_index_list"))
+        .def("set_control_index_list", &QuantumGateBase::set_control_index_list,
+            "set control index list", py::arg("control_index_list"));
 
     py::class_<QuantumGateMatrix, QuantumGateBase>(m, "QuantumGateMatrix")
         .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state,
@@ -1103,10 +1107,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         // python
         //.def("add_gate_consume", (void
         //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add
-        //gate and take ownership", py::arg("gate")) .def("add_gate_consume",
+        // gate and take ownership", py::arg("gate")) .def("add_gate_consume",
         //(void (QuantumCircuit::*)(QuantumGateBase*, unsigned
-        //int))&QuantumCircuit::add_gate, "Add gate and take ownership",
-        //py::arg("gate"), py::arg("position"))
+        // int))&QuantumCircuit::add_gate, "Add gate and take ownership",
+        // py::arg("gate"), py::arg("position"))
         .def("add_gate",
             (void(QuantumCircuit::*)(const QuantumGateBase *)) &
                 QuantumCircuit::add_gate_copy,
@@ -1384,7 +1388,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuitSimulator::swap_state_and_buffer,
             "Swap state and buffer")
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr,
-        //pybind11::return_value_policy::automatic_reference, "Get state ptr")
+        // pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
     py::class_<CausalConeSimulator>(m, "CausalConeSimulator")
         .def(

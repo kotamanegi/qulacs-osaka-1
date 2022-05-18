@@ -364,6 +364,10 @@ public:
     void pop_qubit() {
         this->_qubit_count -= 1;
         this->_dim = (1ULL << this->_qubit_count);
+#pragma omp parallel for
+        for (UINT i = 0; i < this->_dim; ++i) {
+            this->_state_vector[i] += this->_state_vector[i + this->_dim];
+        }
         this->_state_vector = reinterpret_cast<CPPCTYPE*>(
             reallocate_quantum_state(this->_dim, this->_state_vector));
     }

@@ -1,5 +1,5 @@
 from code import interact
-from typing import Dict
+from typing import Dict, List
 
 from qulacs import QuantumGateBase, QuantumState
 from qulacs.gate import SWAP
@@ -23,6 +23,7 @@ class AdaptiveQuantumState:
     self.qubitname_to_qubititr_mapping[qubit_name] = next_qubit_itr
     self.qubititr_to_qubitname_mapping[next_qubit_itr] = qubit_name
     self.internal_state.push_qubit()
+    assert self.internal_state.get_qubit_count() < 21
 
 
   def swap_qubit(self, qubit_name1:int, qubit_name2:int):
@@ -48,7 +49,18 @@ class AdaptiveQuantumState:
 
     self.swap_qubit(target_qubit_name,elimination_qubit_name)
     elimination_qubit_name = self.qubititr_to_qubitname_mapping[elimination_qubit_itr]
-
     self.qubititr_to_qubitname_mapping.pop(elimination_qubit_itr)
     self.qubitname_to_qubititr_mapping.pop(elimination_qubit_name)
-    self.internal_state = QuantumState(elimination_qubit_itr)
+    self.internal_state.pop_qubit()
+  
+  def update_quantum_state_from_gate(self, gate: QuantumGateBase):
+    now_gate = gate.copy()
+    new_target_index_list: List[int] = []
+    new_control_index_list: List[int] = []
+    for x in now_gate.get_target_index_list():
+      new_target_index_list.append(self.qubitname_to_qubititr_mapping[x])
+    for x in now_gate.get_control_index_list():
+      new_control_index_list.append(self.qubitname_to_qubititr_mapping[x])
+    now_gate.set_target_index_list(new_target_index_list)
+    now_gate.set_control_index_list(new_control_index_list)
+    now_gate.update_quantum_state(self.internal_state)
